@@ -3,11 +3,13 @@ package com.example.bmcge.databaseheatmap;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -40,7 +42,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Add a marker in Sydney and move the camera
         LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        LatLng NewYorkCity = new LatLng(40.664077, -73.950162);
+        //restrict the user to new york state boundary
+        LatLngBounds NewYorkState = new LatLngBounds(
+          new LatLng(40.494700, -74.287262), new LatLng(40.908946, -73.654218));
+        //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+        mMap.setLatLngBoundsForCameraTarget(NewYorkState);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(NewYorkCity));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(9.85f));
+        mMap.setMinZoomPreference(9.85f);
+
     }
 }

@@ -56,18 +56,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        //Set the center of the current to new york state
+        LatLng NewYorkStateCenter = new LatLng(42.796400, -75.610987);
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        LatLng NewYorkCity = new LatLng(40.664077, -73.950162);
         //restrict the user to new york state boundary
-        //LatLngBounds NewYorkState = new LatLngBounds(
-        //  new LatLng(40.494700, -74.287262), new LatLng(40.908946, -73.654218));
-        //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-       // mMap.setLatLngBoundsForCameraTarget(NewYorkState);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(NewYorkCity));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(9.85f));
-        //mMap.setMinZoomPreference(9.85f);
+        LatLngBounds NewYorkState = new LatLngBounds(
+          new LatLng(39.886484, -80.572464), new LatLng(45.292211, -70.794633));
+        mMap.setLatLngBoundsForCameraTarget(NewYorkState);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(NewYorkStateCenter));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(6.0f));
+        mMap.setMinZoomPreference(6.0f);
         addHeatMapWeighted();
     }
     public void addHeatMapWeighted(){
@@ -103,9 +101,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             LatLng newCord = new LatLng(lat,lng);
             VioList.add(new WeightedLatLng(newCord,violations));
         }
-        //VioList.add(new WeightedLatLng(new LatLng(40.664077, -73.950132),2.0f));
-       // VioList.add(new WeightedLatLng(new LatLng(40.631386, -74.026723),4.0f));
-       // VioList.add(new WeightedLatLng(new LatLng(40.744054, -73.976719),1.0f));
         return VioList;
     }
 }

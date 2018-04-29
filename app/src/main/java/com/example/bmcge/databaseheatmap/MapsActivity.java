@@ -84,7 +84,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         VioList.add(new WeightedLatLng(new LatLng(40.664077, -73.950132),2.0f));
         VioList.add(new WeightedLatLng(new LatLng(40.631386, -74.026723),4.0f));
         VioList.add(new WeightedLatLng(new LatLng(40.744054, -73.976719),1.0f));
-
         return VioList;
     }
 }

@@ -1,7 +1,9 @@
 package com.example.bmcge.databaseheatmap;
 
+import android.nfc.Tag;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -18,10 +20,14 @@ import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 import com.google.maps.android.heatmaps.WeightedLatLng;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -55,20 +61,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng sydney = new LatLng(-34, 151);
         LatLng NewYorkCity = new LatLng(40.664077, -73.950162);
         //restrict the user to new york state boundary
-        LatLngBounds NewYorkState = new LatLngBounds(
-          new LatLng(40.494700, -74.287262), new LatLng(40.908946, -73.654218));
+        //LatLngBounds NewYorkState = new LatLngBounds(
+        //  new LatLng(40.494700, -74.287262), new LatLng(40.908946, -73.654218));
         //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.setLatLngBoundsForCameraTarget(NewYorkState);
+       // mMap.setLatLngBoundsForCameraTarget(NewYorkState);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(NewYorkCity));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(9.85f));
-        mMap.setMinZoomPreference(9.85f);
+        //mMap.setMinZoomPreference(9.85f);
         addHeatMapWeighted();
     }
     public void addHeatMapWeighted(){
         List<WeightedLatLng> VioList = null;
         //Set the list to our lat and longs with weight
         try{
-            VioList = getViolationData(1);
+            VioList = getViolationData();
         }catch(JSONException e){
             Toast.makeText(this, "Problem reading violations.", Toast.LENGTH_LONG).show();
         }
@@ -78,12 +84,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         TileOverlay mOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
     }
-    private ArrayList<WeightedLatLng> getViolationData(int resource) throws JSONException{
+    private ArrayList<WeightedLatLng> getViolationData() throws JSONException{
         ArrayList<WeightedLatLng> VioList = new ArrayList<WeightedLatLng>();
-        //Read from out data now
-        VioList.add(new WeightedLatLng(new LatLng(40.664077, -73.950132),2.0f));
-        VioList.add(new WeightedLatLng(new LatLng(40.631386, -74.026723),4.0f));
-        VioList.add(new WeightedLatLng(new LatLng(40.744054, -73.976719),1.0f));
+        //Read from out data
+        InputStream inputStream = getResources().openRawResource(R.raw.food_services_vio);
+        String json = new Scanner(inputStream).useDelimiter("\\A").next();
+        JSONArray array = new JSONArray(json);
+        for (int i = 0; i < array.length(); i++) {
+            JSONObject object = array.getJSONObject(i);
+            String coord = object.getString("Cords");
+            double violations = object.getDouble("VioNum");
+            //Coord is in form "(12.5446, 75.66546)" so we need to get the two doubles out
+            coord =coord.replaceAll("[()\\s]",""); //remove all the symbols
+            String coords[] = coord.split(",",2);
+            Double lat = Double.parseDouble(coords[0]);
+            Double lng = Double.parseDouble(coords[1]);
+            Log.i("Tag","Coords"+lat+lng);
+            LatLng newCord = new LatLng(lat,lng);
+            VioList.add(new WeightedLatLng(newCord,violations));
+        }
+        //VioList.add(new WeightedLatLng(new LatLng(40.664077, -73.950132),2.0f));
+       // VioList.add(new WeightedLatLng(new LatLng(40.631386, -74.026723),4.0f));
+       // VioList.add(new WeightedLatLng(new LatLng(40.744054, -73.976719),1.0f));
         return VioList;
     }
 }

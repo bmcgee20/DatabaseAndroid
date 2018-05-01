@@ -79,19 +79,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         HeatmapTileProvider mProvider = new HeatmapTileProvider.Builder()
                 .weightedData(VioList)
                 .build();
-
+        mProvider.setRadius(22);
         TileOverlay mOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
     }
     private ArrayList<WeightedLatLng> getViolationData() throws JSONException{
+        //TODO need some comparison algoritm to coordinate county there to county here
         ArrayList<WeightedLatLng> VioList = new ArrayList<WeightedLatLng>();
         //Read from out data
-        InputStream inputStream = getResources().openRawResource(R.raw.food_services_vio);
+        InputStream inputStream = getResources().openRawResource(R.raw.food_services__vio_combined);
         String json = new Scanner(inputStream).useDelimiter("\\A").next();
         JSONArray array = new JSONArray(json);
         for (int i = 0; i < array.length(); i++) {
             JSONObject object = array.getJSONObject(i);
             String coord = object.getString("Cords");
             double violations = object.getDouble("VioNum");
+            double weight = object.getDouble("avgVioPerRest");
+            weight*=10;
             //Coord is in form "(12.5446, 75.66546)" so we need to get the two doubles out
             coord =coord.replaceAll("[()\\s]",""); //remove all the symbols
             String coords[] = coord.split(",",2);
@@ -99,7 +102,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Double lng = Double.parseDouble(coords[1]);
             Log.i("Tag","Coords"+lat+lng);
             LatLng newCord = new LatLng(lat,lng);
-            VioList.add(new WeightedLatLng(newCord,violations));
+            VioList.add(new WeightedLatLng(newCord,violations*weight));
         }
         return VioList;
     }
